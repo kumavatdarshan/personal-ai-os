@@ -12,7 +12,10 @@ const cors = require('cors');           // allow frontend to talk to backend
 const app = express();
 
 // These two lines tell the server how to handle incoming data
-app.use(cors());          // allow requests from other origins (your frontend)
+app.use(cors({
+  origin: '*',
+  credentials: false,
+}));          // allow requests from other origins (your frontend)
 app.use(express.json());  // understand JSON data in requests
 
 // Connect to MongoDB
