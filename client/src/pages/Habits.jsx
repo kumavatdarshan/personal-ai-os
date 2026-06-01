@@ -14,28 +14,22 @@ function getLastNDays(n) {
   return days;
 }
 
-function HabitCalendar({ habit }) {
-  const days = getLastNDays(30);
+function HabitCalendar({ habit, isMobile }) {
+  const days = getLastNDays(isMobile ? 14 : 30);
   const completedSet = new Set(
     (habit.completedDates || []).map(d => {
-      const date = new Date(d);
-      date.setHours(0, 0, 0, 0);
-      return date.getTime();
+      const date = new Date(d); date.setHours(0, 0, 0, 0); return date.getTime();
     })
   );
   const todayTime = (() => { const t = new Date(); t.setHours(0,0,0,0); return t.getTime(); })();
+  const cols = isMobile ? 14 : 30;
 
   return (
-    <div style={{ marginTop: '16px' }}>
-      <div style={{ fontSize: '10px', letterSpacing: '3px', color: '#666', marginBottom: '10px' }}>LAST 30 DAYS</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(30, 1fr)', gap: '3px', marginBottom: '4px' }}>
-        {days.map((day, i) => (
-          <div key={i} style={{ fontSize: '8px', color: '#444', textAlign: 'center' }}>
-            {i % 5 === 0 ? day.getDate() : ''}
-          </div>
-        ))}
+    <div style={{ marginTop: '12px' }}>
+      <div style={{ fontSize: '10px', letterSpacing: '3px', color: '#555', marginBottom: '8px' }}>
+        LAST {cols} DAYS
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(30, 1fr)', gap: '3px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + cols + ', 1fr)', gap: '3px' }}>
         {days.map((day, i) => {
           const done = completedSet.has(day.getTime());
           const isToday = day.getTime() === todayTime;
@@ -48,20 +42,6 @@ function HabitCalendar({ habit }) {
           );
         })}
       </div>
-      <div style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ width: '8px', height: '8px', background: '#fff', borderRadius: '1px' }} />
-          <span style={{ fontSize: '9px', color: '#666', letterSpacing: '1px' }}>DONE</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ width: '8px', height: '8px', background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '1px' }} />
-          <span style={{ fontSize: '9px', color: '#666', letterSpacing: '1px' }}>MISSED</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ width: '8px', height: '8px', background: '#0d0d0d', border: '1px solid #888', borderRadius: '1px' }} />
-          <span style={{ fontSize: '9px', color: '#666', letterSpacing: '1px' }}>TODAY</span>
-        </div>
-      </div>
     </div>
   );
 }
@@ -70,6 +50,8 @@ export default function Habits() {
   const [habits, setHabits] = useState([]);
   const [name, setName] = useState('');
   const [frequency, setFrequency] = useState('daily');
+  const isMobile = window.innerWidth < 768;
+  const pad = isMobile ? '20px' : '40px';
 
   useEffect(() => { fetchHabits(); }, []);
 
@@ -92,7 +74,7 @@ export default function Habits() {
     try {
       await axios.post(API + '/api/habits/' + id + '/complete');
       fetchHabits();
-    } catch { alert('Already completed today! Come back tomorrow'); }
+    } catch { alert('Already completed today!'); }
   };
 
   const deleteHabit = async (id) => {
@@ -113,19 +95,20 @@ export default function Habits() {
     });
 
   const getConsistency = (habit) => {
-    const days = getLastNDays(30);
+    const n = isMobile ? 14 : 30;
+    const days = getLastNDays(n);
     const completedSet = new Set((habit.completedDates || []).map(d => {
       const date = new Date(d); date.setHours(0,0,0,0); return date.getTime();
     }));
-    return Math.round((days.filter(d => completedSet.has(d.getTime())).length / 30) * 100);
+    return Math.round((days.filter(d => completedSet.has(d.getTime())).length / n) * 100);
   };
 
   const doneCount = habits.filter(isDoneToday).length;
   const pct = habits.length > 0 ? Math.round((doneCount / habits.length) * 100) : 0;
 
   return (
-    <div style={{ padding: '60px 40px', background: '#000', minHeight: '100vh' }}>
-      <div style={{ fontSize: '48px', fontWeight: '800', letterSpacing: '-3px', marginBottom: '8px', lineHeight: '1', color: '#fff' }}>
+    <div style={{ padding: '40px ' + pad, background: '#000', minHeight: '100vh' }}>
+      <div style={{ fontSize: isMobile ? '36px' : '48px', fontWeight: '800', letterSpacing: '-3px', marginBottom: '8px', lineHeight: '1', color: '#fff' }}>
         HABITS
       </div>
       <div style={{ fontSize: '11px', letterSpacing: '4px', color: '#888', marginBottom: '16px' }}>
@@ -133,12 +116,12 @@ export default function Habits() {
       </div>
 
       {habits.length > 0 && (
-        <div style={{ height: '1px', background: '#222', marginBottom: '60px' }}>
+        <div style={{ height: '1px', background: '#222', marginBottom: '40px' }}>
           <div style={{ height: '1px', background: '#fff', width: pct + '%', transition: 'width 0.5s ease' }} />
         </div>
       )}
 
-      <div style={{ borderTop: '1px solid #222', paddingTop: '40px', marginBottom: '60px', maxWidth: '600px' }}>
+      <div style={{ borderTop: '1px solid #222', paddingTop: '32px', marginBottom: '48px' }}>
         <div style={{ fontSize: '10px', letterSpacing: '4px', color: '#888', marginBottom: '24px' }}>NEW HABIT</div>
         <input type="text" placeholder="What habit will change your life?" value={name}
           onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addHabit()}
@@ -163,62 +146,67 @@ export default function Habits() {
 
       <div style={{ borderTop: '1px solid #222' }}>
         {habits.length === 0 ? (
-          <div style={{ padding: '80px 0', textAlign: 'center', fontSize: '11px', letterSpacing: '4px', color: '#333' }}>
-            NO HABITS YET — START SMALL, START TODAY
+          <div style={{ padding: '60px 0', textAlign: 'center', fontSize: '11px', letterSpacing: '4px', color: '#333' }}>
+            NO HABITS YET — START TODAY
           </div>
         ) : (
           habits.map((habit, i) => {
             const done = isDoneToday(habit);
             const consistency = getConsistency(habit);
             return (
-              <div key={habit._id} style={{ padding: '36px 0', borderBottom: '1px solid #111' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '48px 1fr auto', gap: '24px', alignItems: 'center', marginBottom: '8px' }}>
-                  <div style={{ fontSize: '12px', color: '#555', letterSpacing: '2px' }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: '20px', fontWeight: '700', color: '#fff',
-                      textDecoration: done ? 'line-through' : 'none',
-                      opacity: done ? 0.4 : 1, marginBottom: '6px',
-                    }}>
-                      {habit.name}
+              <div key={habit._id} style={{ padding: '28px 0', borderBottom: '1px solid #111' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ flex: 1, marginRight: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '11px', color: '#444', letterSpacing: '2px' }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span style={{
+                        fontSize: isMobile ? '16px' : '20px', fontWeight: '700', color: '#fff',
+                        textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.4 : 1,
+                      }}>
+                        {habit.name}
+                      </span>
                     </div>
-                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>{habit.frequency}</span>
-                      <span style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>🔥 {habit.streak} DAY STREAK</span>
-                      <span style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>{consistency}% CONSISTENT</span>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#666', textTransform: 'uppercase' }}>
+                        {habit.frequency}
+                      </span>
+                      <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#666', textTransform: 'uppercase' }}>
+                        🔥 {habit.streak} STREAK
+                      </span>
+                      <span style={{ fontSize: '10px', letterSpacing: '2px', color: '#666', textTransform: 'uppercase' }}>
+                        {consistency}% CONSISTENT
+                      </span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
                     {done ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-                        <span style={{ fontSize: '11px', letterSpacing: '2px', color: '#888', textTransform: 'uppercase' }}>Done</span>
+                        <span style={{ fontSize: '10px', color: '#666', letterSpacing: '1px' }}>DONE</span>
                       </div>
                     ) : (
                       <button onClick={() => completeHabit(habit._id)} style={{
                         background: 'none', border: '1px solid #444', color: '#fff',
                         fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
-                        padding: '10px 20px', cursor: 'pointer', fontFamily: 'inherit',
+                        padding: '8px 14px', cursor: 'pointer', fontFamily: 'inherit',
                       }}
                         onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#000'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#fff'; }}
-                      >Mark Done</button>
+                      >Done</button>
                     )}
                     <button onClick={() => deleteHabit(habit._id)} style={{
-                      background: 'none', border: '1px solid #333', color: '#888',
+                      background: 'none', border: '1px solid #333', color: '#666',
                       fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
-                      padding: '10px 16px', cursor: 'pointer', fontFamily: 'inherit',
+                      padding: '8px 12px', cursor: 'pointer', fontFamily: 'inherit',
                     }}
                       onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff4444'; e.currentTarget.style.color = '#ff4444'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#888'; }}
-                    >Delete</button>
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#666'; }}
+                    >Del</button>
                   </div>
                 </div>
-                <div style={{ paddingLeft: '72px' }}>
-                  <HabitCalendar habit={habit} />
-                </div>
+                <HabitCalendar habit={habit} isMobile={isMobile} />
               </div>
             );
           })

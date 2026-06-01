@@ -8,6 +8,8 @@ export default function Goals() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const isMobile = window.innerWidth < 768;
+  const pad = isMobile ? '20px' : '40px';
 
   useEffect(() => { fetchGoals(); }, []);
 
@@ -50,15 +52,15 @@ export default function Goals() {
   };
 
   return (
-    <div style={{ padding: '60px 40px', background: '#000', minHeight: '100vh' }}>
-      <div style={{ fontSize: '48px', fontWeight: '800', letterSpacing: '-3px', marginBottom: '8px', lineHeight: '1', color: '#fff' }}>
+    <div style={{ padding: '40px ' + pad, background: '#000', minHeight: '100vh' }}>
+      <div style={{ fontSize: isMobile ? '36px' : '48px', fontWeight: '800', letterSpacing: '-3px', marginBottom: '8px', lineHeight: '1', color: '#fff' }}>
         GOALS
       </div>
-      <div style={{ fontSize: '11px', letterSpacing: '4px', color: '#888', marginBottom: '60px' }}>
+      <div style={{ fontSize: '11px', letterSpacing: '4px', color: '#888', marginBottom: '40px' }}>
         {goals.length} ACTIVE · {goals.filter(g => g.progress === 100).length} COMPLETED
       </div>
 
-      <div style={{ borderTop: '1px solid #222', paddingTop: '40px', marginBottom: '60px', maxWidth: '600px' }}>
+      <div style={{ borderTop: '1px solid #222', paddingTop: '32px', marginBottom: '48px' }}>
         <div style={{ fontSize: '10px', letterSpacing: '4px', color: '#888', marginBottom: '24px' }}>NEW GOAL</div>
         <input type="text" placeholder="What do you want to achieve?" value={title}
           onChange={e => setTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addGoal()} style={inputStyle} />
@@ -75,63 +77,61 @@ export default function Goals() {
 
       <div style={{ borderTop: '1px solid #222' }}>
         {goals.length === 0 ? (
-          <div style={{ padding: '80px 0', textAlign: 'center', fontSize: '11px', letterSpacing: '4px', color: '#333' }}>
-            NO GOALS YET — ADD YOUR FIRST ONE ABOVE
+          <div style={{ padding: '60px 0', textAlign: 'center', fontSize: '11px', letterSpacing: '4px', color: '#333' }}>
+            NO GOALS YET
           </div>
         ) : (
           goals.map((goal, i) => (
-            <div key={goal._id} style={{
-              padding: '36px 0', borderBottom: '1px solid #111',
-              display: 'grid', gridTemplateColumns: '48px 1fr 100px', gap: '24px', alignItems: 'start',
-            }}>
-              <div style={{ fontSize: '12px', color: '#555', letterSpacing: '2px', paddingTop: '6px' }}>
-                {String(i + 1).padStart(2, '0')}
-              </div>
-              <div>
-                <div style={{
-                  fontSize: '22px', fontWeight: '700', color: '#fff',
-                  letterSpacing: '-0.5px', marginBottom: '6px',
-                  textDecoration: goal.progress === 100 ? 'line-through' : 'none',
-                  opacity: goal.progress === 100 ? 0.4 : 1,
-                }}>
-                  {goal.title}
-                </div>
-                {goal.description && (
-                  <div style={{ fontSize: '13px', color: '#aaa', marginBottom: '8px', lineHeight: '1.6' }}>
-                    {goal.description}
+            <div key={goal._id} style={{ padding: '28px 0', borderBottom: '1px solid #111' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ flex: 1, marginRight: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', color: '#444', letterSpacing: '2px' }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span style={{
+                      fontSize: isMobile ? '18px' : '22px', fontWeight: '700', color: '#fff',
+                      textDecoration: goal.progress === 100 ? 'line-through' : 'none',
+                      opacity: goal.progress === 100 ? 0.4 : 1,
+                    }}>
+                      {goal.title}
+                    </span>
                   </div>
-                )}
-                {goal.deadline && (
-                  <div style={{ fontSize: '11px', letterSpacing: '2px', color: '#666', marginBottom: '16px' }}>
-                    DUE — {new Date(goal.deadline).toDateString().toUpperCase()}
-                  </div>
-                )}
-                <div style={{ height: '1px', background: '#222', marginBottom: '10px' }}>
-                  <div style={{ height: '1px', background: '#fff', width: goal.progress + '%', transition: 'width 0.5s ease' }} />
+                  {goal.description && (
+                    <div style={{ fontSize: '13px', color: '#aaa', marginBottom: '6px', lineHeight: '1.6' }}>
+                      {goal.description}
+                    </div>
+                  )}
+                  {goal.deadline && (
+                    <div style={{ fontSize: '11px', letterSpacing: '2px', color: '#555' }}>
+                      DUE — {new Date(goal.deadline).toDateString().toUpperCase()}
+                    </div>
+                  )}
                 </div>
-                <input type="range" min="0" max="100" value={goal.progress}
-                  onChange={e => updateProgress(goal._id, e.target.value)}
-                  style={{ width: '100%', accentColor: '#fff', cursor: 'pointer' }} />
-                <div style={{ fontSize: '11px', color: '#666', marginTop: '6px', letterSpacing: '1px' }}>
-                  Drag slider to update progress
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: isMobile ? '32px' : '40px', fontWeight: '800', letterSpacing: '-2px', lineHeight: '1', color: '#fff' }}>
+                      {goal.progress}
+                    </div>
+                    <div style={{ fontSize: '9px', letterSpacing: '2px', color: '#555' }}>%</div>
+                  </div>
+                  <button onClick={() => deleteGoal(goal._id)} style={{
+                    background: 'none', border: '1px solid #333', color: '#888',
+                    fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase',
+                    padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff4444'; e.currentTarget.style.color = '#ff4444'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#888'; }}
+                  >Delete</button>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '16px' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '44px', fontWeight: '800', letterSpacing: '-2px', lineHeight: '1', color: '#fff' }}>
-                    {goal.progress}
-                  </div>
-                  <div style={{ fontSize: '10px', letterSpacing: '2px', color: '#555', marginTop: '4px' }}>PERCENT</div>
-                </div>
-                <button onClick={() => deleteGoal(goal._id)} style={{
-                  background: 'none', border: '1px solid #333', color: '#888',
-                  fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
-                  padding: '8px 14px', cursor: 'pointer', fontFamily: 'inherit',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff4444'; e.currentTarget.style.color = '#ff4444'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = '#888'; }}
-                >Delete</button>
+              <div style={{ height: '1px', background: '#222', marginBottom: '10px' }}>
+                <div style={{ height: '1px', background: '#fff', width: goal.progress + '%', transition: 'width 0.5s ease' }} />
               </div>
+              <input type="range" min="0" max="100" value={goal.progress}
+                onChange={e => updateProgress(goal._id, e.target.value)}
+                style={{ width: '100%', accentColor: '#fff', cursor: 'pointer' }} />
+              <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>Drag to update progress</div>
             </div>
           ))
         )}
