@@ -11,7 +11,7 @@ export default function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const res = await axios.get('${import.meta.env.VITE_API_URL}/api/goals');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/goals');
       setGoals(res.data);
     } catch (err) {
       console.error(err);
@@ -21,7 +21,7 @@ export default function Goals() {
   const addGoal = async () => {
     if (!title.trim()) return;
     try {
-      await axios.post('${import.meta.env.VITE_API_URL}/api/goals', { title, description, deadline });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/goals', { title, description, deadline });
       setTitle(''); setDescription(''); setDeadline('');
       fetchGoals();
     } catch (err) {
