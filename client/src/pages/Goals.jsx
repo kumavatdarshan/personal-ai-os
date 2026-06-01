@@ -11,7 +11,7 @@ export default function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/goals');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}`/api/goals');
       setGoals(res.data);
     } catch (err) {
       console.error(err);
@@ -21,7 +21,7 @@ export default function Goals() {
   const addGoal = async () => {
     if (!title.trim()) return;
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/goals', { title, description, deadline });
+      await axios.post(`${import.meta.env.VITE_API_URL}`/api/goals', { title, description, deadline });
       setTitle(''); setDescription(''); setDeadline('');
       fetchGoals();
     } catch (err) {
@@ -31,7 +31,7 @@ export default function Goals() {
 
   const updateProgress = async (id, progress) => {
     try {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/api/goals/${id}/progress`, { progress: Number(progress) });
+      await axios.patch(`${import.meta.env.VITE_API_URL}`/api/goals/${id}/progress`, { progress: Number(progress) });
       fetchGoals();
     } catch (err) {
       console.error(err);
@@ -41,7 +41,7 @@ export default function Goals() {
   const deleteGoal = async (id) => {
     if (!window.confirm('Delete this goal?')) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/goals/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}`/api/goals/${id}`);
       setGoals(prev => prev.filter(g => g._id !== id));
     } catch (err) {
       alert('Delete failed: ' + err.message);

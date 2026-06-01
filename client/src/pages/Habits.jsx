@@ -84,7 +84,7 @@ export default function Habits() {
 
   const fetchHabits = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/habits');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}`/api/habits');
       setHabits(res.data);
     } catch (err) {
       console.error(err);
@@ -94,7 +94,7 @@ export default function Habits() {
   const addHabit = async () => {
     if (!name.trim()) return;
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/habits', { name, frequency });
+      await axios.post(`${import.meta.env.VITE_API_URL}`/api/habits', { name, frequency });
       setName('');
       fetchHabits();
     } catch (err) {
@@ -104,7 +104,7 @@ export default function Habits() {
 
   const completeHabit = async (id) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/habits/${id}/complete`);
+      await axios.post(`${import.meta.env.VITE_API_URL}`/api/habits/${id}/complete`);
       fetchHabits();
     } catch {
       alert('Already completed today! Come back tomorrow 💪');
@@ -114,7 +114,7 @@ export default function Habits() {
   const deleteHabit = async (id) => {
     if (!window.confirm('Delete this habit?')) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/habits/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}`/api/habits/${id}`);
       setHabits(prev => prev.filter(h => h._id !== id));
     } catch (err) {
       alert('Delete failed: ' + err.message);

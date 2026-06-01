@@ -94,7 +94,7 @@ export default function Dashboard() {
   const generatePlan = async () => {
     setLoading(true); setPlan('');
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/ai/daily-plan');
+      const res = await axios.post('https://personal-ai-os-backend-1504.onrender.com/api/ai/daily-plan');
       setPlan(res.data.plan);
     } catch { setPlan('Could not load plan. Make sure your server is running.'); }
     setLoading(false);
@@ -102,28 +102,28 @@ export default function Dashboard() {
 
   const fetchQuote = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/ai/quote');
+      const res = await axios.get('https://personal-ai-os-backend-1504.onrender.com/api/ai/quote');
       setQuote(res.data.quote);
     } catch {}
   };
 
   const fetchGoals = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/goals');
+      const res = await axios.get('https://personal-ai-os-backend-1504.onrender.com/api/goals');
       setGoals(res.data);
     } catch {}
   };
 
   const fetchHabits = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/habits');
+      const res = await axios.get('https://personal-ai-os-backend-1504.onrender.com/api/habits');
       setHabits(res.data);
     } catch {}
   };
 
   const fetchWeeklySummary = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/ai/weekly-summary');
+      const res = await axios.get('https://personal-ai-os-backend-1504.onrender.com/api/ai/weekly-summary');
       setWeeklySummary(res.data.summary);
     } catch {}
   };
@@ -132,7 +132,7 @@ export default function Dashboard() {
     if (!chatMsg.trim()) return;
     setChatLoading(true); setChatReply('');
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/ai/chat', { message: chatMsg });
+      const res = await axios.post('https://personal-ai-os-backend-1504.onrender.com/api/ai/chat', { message: chatMsg });
       setChatReply(res.data.reply);
     } catch { setChatReply('Error connecting to AI.'); }
     setChatLoading(false);
@@ -140,7 +140,7 @@ export default function Dashboard() {
 
   const completeHabit = async (id) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/habits/${id}/complete`);
+      await axios.post(`https://personal-ai-os-backend-1504.onrender.com/api/habits/${id}/complete`);
       fetchHabits();
     } catch { alert('Already completed today! Come back tomorrow 💪'); }
   };
